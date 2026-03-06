@@ -165,8 +165,8 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
             }}>
               <QRCode
                 value={shareUrl}
-                size={64}
-                style={{ display: 'block' }}
+                size={80}
+                style={{ display: 'block', width: '80px', height: '80px' }}
                 fgColor={theme.accent}
                 bgColor="transparent"
               />
