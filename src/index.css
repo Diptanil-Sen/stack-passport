@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap');
+
+:root {
+  --bg: #030712;
+  --surface: #0a0f1e;
+  --border: #1a2744;
+  --accent: #00d4ff;
+  --accent2: #ff6b35;
+  --accent3: #7c3aed;
+  --gold: #fbbf24;
+  --green: #10b981;
+  --text: #e2e8f0;
+  --muted: #64748b;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body, #root {
+  min-height: 100vh;
+  width: 100%;
+  background: #030712;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Rajdhani', sans-serif;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes glitch1 {
+  0%, 85%, 100% { clip-path: inset(0 0 100% 0); transform: translate(0); opacity: 0; }
+  86% { clip-path: inset(15% 0 70% 0); transform: translate(-6px, 2px); opacity: 1; }
+  88% { clip-path: inset(55% 0 25% 0); transform: translate(6px, -2px); opacity: 1; }
+  90% { clip-path: inset(75% 0 5% 0);  transform: translate(-3px, 3px); opacity: 1; }
+  92% { clip-path: inset(30% 0 50% 0); transform: translate(4px, -1px); opacity: 1; }
+  94% { clip-path: inset(0 0 100% 0);  transform: translate(0); opacity: 0; }
+}
+
+@keyframes glitch2 {
+  0%, 87%, 100% { clip-path: inset(0 0 100% 0); transform: translate(0); opacity: 0; }
+  88% { clip-path: inset(40% 0 35% 0); transform: translate(6px, -2px); opacity: 1; }
+  90% { clip-path: inset(10% 0 75% 0); transform: translate(-6px, 2px); opacity: 1; }
+  92% { clip-path: inset(65% 0 15% 0); transform: translate(3px, 3px);  opacity: 1; }
+  94% { clip-path: inset(85% 0 5% 0);  transform: translate(-4px, -2px); opacity: 1; }
+  96% { clip-path: inset(0 0 100% 0);  transform: translate(0); opacity: 0; }
+}
+
+@keyframes neonPulse {
+  0%, 100% { text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff, 0 0 42px #00d4ff, 0 0 82px #00d4ff, 0 0 92px #00d4ff; }
+  50%       { text-shadow: 0 0 4px #fff, 0 0 7px #fff, 0 0 13px #fff, 0 0 25px #00d4ff, 0 0 45px #00d4ff, 0 0 55px #00d4ff; }
+}
+
+@keyframes flipIn {
+  0%   { transform: perspective(1200px) rotateY(-90deg); opacity: 0; }
+  60%  { transform: perspective(1200px) rotateY(8deg);   opacity: 1; }
+  80%  { transform: perspective(1200px) rotateY(-4deg); }
+  100% { transform: perspective(1200px) rotateY(0deg);   opacity: 1; }
+}
+
+.passport-flip-enter {
+  animation: flipIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+@media (max-width: 600px) {
+  .card-meta-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .card-stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .card-topbar { flex-wrap: wrap; gap: 6px; }
+}
