@@ -16,12 +16,33 @@ export default function Passport() {
   const avatarUrl = location.state?.avatarUrl || null
 
   let data = defaultPassport
-try {
-  const raw = params.get('d')
-  if (raw) data = JSON.parse(atob(raw))
-} catch (e) {}
+  try {
+    const raw = params.get('d')
+    if (raw) {
+      const c = JSON.parse(atob(raw))
+      if (c.n) {
+        data = {
+          name: c.n,
+          nationality: c.na,
+          role: c.r,
+          years: c.y,
+          clearance: c.cl,
+          issueYear: c.iy,
+          gender: c.g,
+          theme: c.th,
+          passportType: c.pt,
+          stacks: (c.s || []).map(st => ({ name: st.n, years: st.y })),
+        }
+      } else {
+        data = c
+      }
+    }
+  } catch (e) {}
 
   const theme = THEMES[data.theme] || THEMES.cyber
+  const shareUrl = window.location.href
+  const shareText = `Just generated my Stack Passport 🛂 Check out my dev identity →`
+  const [shortUrl, setShortUrl] = useState(shareUrl)
 
   // Confetti on mount
   useEffect(() => {
@@ -39,34 +60,42 @@ try {
     return () => clearTimeout(t)
   }, [])
 
+  // Shorten URL via TinyURL
+  useEffect(() => {
+    fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(shareUrl)}`)
+      .then(r => r.text())
+      .then(short => { if (short.startsWith('https://')) setShortUrl(short) })
+      .catch(() => {})
+  }, [shareUrl])
+
   function showToast(msg) {
     setToast(msg)
     setTimeout(() => setToast(''), 2500)
   }
 
-  const shareUrl = window.location.href
-  const shareText = `Just generated my Stack Passport 🛂 Check out my dev identity →`
-
-  function copyLink() {
-    navigator.clipboard.writeText(shareUrl)
-      .then(() => showToast('// LINK COPIED · SHARE YOUR PASSPORT //'))
-      .catch(() => showToast('// COPY THE URL FROM ADDRESS BAR //'))
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(shortUrl)
+      showToast('// SHORT LINK COPIED · SHARE YOUR PASSPORT //')
+    } catch (e) {
+      showToast('// COPY THE URL FROM ADDRESS BAR //')
+    }
   }
 
   function shareTwitter() {
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank')
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shortUrl)}`, '_blank')
   }
 
   function shareLinkedIn() {
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`, '_blank')
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shortUrl)}`, '_blank')
   }
 
   function shareWhatsApp() {
-    window.open(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`, '_blank')
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shortUrl)}`, '_blank')
   }
 
   function shareInstagram() {
-    navigator.clipboard.writeText(shareUrl)
+    navigator.clipboard.writeText(shortUrl)
       .then(() => showToast('// LINK COPIED · PASTE IN INSTAGRAM BIO OR STORY //'))
   }
 
@@ -97,16 +126,14 @@ try {
       })
       clone.querySelectorAll('[style*="glitch"]').forEach(el => el.remove())
 
-      // Watermark
       const watermark = document.createElement('div')
       watermark.style.cssText = `
         position: absolute; bottom: 12px; right: 16px;
         font-family: 'Share Tech Mono', monospace;
         font-size: 10px; color: rgba(255,255,255,0.2);
-        letter-spacing: 2px; pointer-events: none;
-        z-index: 100;
+        letter-spacing: 2px; pointer-events: none; z-index: 100;
       `
-      watermark.innerText = 'stackpassport.dev'
+      watermark.innerText = 'stack-passport.vercel.app'
       clone.style.position = 'relative'
       clone.appendChild(watermark)
 
@@ -128,7 +155,6 @@ try {
       showToast('// PASSPORT DOWNLOADED //')
     } catch (e) {
       showToast('// DOWNLOAD FAILED · TRY SCREENSHOT MODE //')
-      console.error(e)
     }
     setDownloading(false)
   }
@@ -209,9 +235,9 @@ try {
         </div>
         <div className="share-btns" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
           {[
-            { label: '𝕏 TWITTER',    color: '#1da1f2', fn: shareTwitter  },
-            { label: 'in LINKEDIN',  color: '#0077b5', fn: shareLinkedIn },
-            { label: '📱 WHATSAPP',  color: '#25d366', fn: shareWhatsApp },
+            { label: '𝕏 TWITTER',    color: '#1da1f2', fn: shareTwitter   },
+            { label: 'in LINKEDIN',  color: '#0077b5', fn: shareLinkedIn  },
+            { label: '📱 WHATSAPP',  color: '#25d366', fn: shareWhatsApp  },
             { label: '📸 INSTAGRAM', color: '#e1306c', fn: shareInstagram },
           ].map(({ label, color, fn }) => (
             <button key={label} onClick={fn} style={shareBtnStyle(color)}>{label}</button>
@@ -221,7 +247,7 @@ try {
 
       {/* Footer */}
       <div className="hide-screenshot" style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 'clamp(9px, 2vw, 11px)', color: 'var(--muted)', letterSpacing: '2px', opacity: 0.4, position: 'relative', zIndex: 1, textAlign: 'center', lineHeight: 2 }}>
-        stackpassport.dev · share your identity<br/>
+        stack-passport.vercel.app · share your identity<br/>
         <span style={{ opacity: 0.7 }}>crafted by diptanil sen</span>
       </div>
 
@@ -235,8 +261,7 @@ try {
         padding: '12px clamp(16px, 4vw, 24px)',
         borderRadius: '4px', backdropFilter: 'blur(10px)',
         transition: 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',
-        zIndex: 1000, whiteSpace: 'nowrap', maxWidth: '90vw',
-        textAlign: 'center',
+        zIndex: 1000, whiteSpace: 'nowrap', maxWidth: '90vw', textAlign: 'center',
       }}>
         {toast}
       </div>

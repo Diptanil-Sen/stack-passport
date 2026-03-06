@@ -79,7 +79,19 @@ export default function Generator() {
   function generate() {
   if (!validate()) return
   const data = { ...form, years: parseInt(form.years) || 1, stacks }
-  const encoded = btoa(JSON.stringify(data))
+  const compressed = {
+    n: data.name,
+    na: data.nationality,
+    r: data.role,
+    y: data.years,
+    cl: data.clearance,
+    iy: data.issueYear,
+    g: data.gender,
+    th: data.theme,
+    pt: data.passportType,
+    s: data.stacks.map(st => ({ n: st.name, y: st.years })),
+  }
+  const encoded = btoa(JSON.stringify(compressed))
   navigate(`/passport?d=${encoded}`, { state: { avatarUrl } })
 }
 

@@ -1,4 +1,3 @@
-import QRCode from 'react-qr-code'
 import StampGrid from './StampGrid'
 import MRZZone from './MRZZone'
 import GlitchName from './GlitchName'
@@ -14,7 +13,8 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
   const avatarRing = isGirl
     ? 'linear-gradient(135deg, #d400ff, #7c3aed, #ff6b35)'
     : `linear-gradient(135deg, ${theme.accent}, ${theme.accent3}, ${theme.accent2})`
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://stackpassport.dev'
+
+  const initials = data.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
 
   return (
     <div ref={cardRef} style={{
@@ -28,15 +28,15 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
       marginBottom: '20px',
       transition: 'transform 0.1s ease',
     }}
-      onMouseMove={e => {
-        const rect = e.currentTarget.getBoundingClientRect()
-        const x = (e.clientX - rect.left) / rect.width - 0.5
-        const y = (e.clientY - rect.top) / rect.height - 0.5
-        e.currentTarget.style.transform = `perspective(1200px) rotateY(${x * 8}deg) rotateX(${-y * 6}deg)`
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg)'
-      }}
+    onMouseMove={e => {
+      const rect = e.currentTarget.getBoundingClientRect()
+      const x = (e.clientX - rect.left) / rect.width - 0.5
+      const y = (e.clientY - rect.top) / rect.height - 0.5
+      e.currentTarget.style.transform = `perspective(1200px) rotateY(${x * 8}deg) rotateX(${-y * 6}deg)`
+    }}
+    onMouseLeave={e => {
+      e.currentTarget.style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg)'
+    }}
     >
       <style>{`
         @keyframes scanLine {
@@ -90,10 +90,10 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
 
       {/* Circuit SVG */}
       <svg style={{ position: 'absolute', top: 16, right: 16, width: 60, height: 60, opacity: 0.15, zIndex: 4 }} viewBox="0 0 60 60" fill="none">
-        <path d="M10 50 L10 10 L50 10" stroke={theme.accent} strokeWidth="1" />
-        <path d="M20 40 L20 20 L40 20" stroke={theme.accent} strokeWidth="0.5" />
-        <circle cx="10" cy="10" r="3" fill={theme.accent} />
-        <circle cx="50" cy="10" r="2" fill={theme.accent} opacity="0.5" />
+        <path d="M10 50 L10 10 L50 10" stroke={theme.accent} strokeWidth="1"/>
+        <path d="M20 40 L20 20 L40 20" stroke={theme.accent} strokeWidth="0.5"/>
+        <circle cx="10" cy="10" r="3" fill={theme.accent}/>
+        <circle cx="50" cy="10" r="2" fill={theme.accent} opacity="0.5"/>
       </svg>
 
       <div style={{ padding: 'clamp(16px, 4vw, 32px)', position: 'relative', zIndex: 5 }}>
@@ -110,7 +110,7 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
         </div>
 
         {/* Identity row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: 'clamp(6px, 2vw, 20px)', marginBottom: '20px', alignItems: 'start', minWidth: 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 'clamp(10px, 2vw, 20px)', marginBottom: '20px', alignItems: 'start' }}>
 
           {/* Avatar */}
           <div className="avatar-ring">
@@ -123,57 +123,48 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
               {avatarUrl ? (
                 <img src={avatarUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '6px' }} />
               ) : (
-                <span style={{ fontSize: '38px' }}>{isGirl ? '👩‍💻' : '👨‍💻'}</span>
+                <div style={{
+                  width: '100%', height: '100%',
+                  background: `linear-gradient(135deg, ${theme.accent}20, ${theme.accent3}20)`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: "'Orbitron', sans-serif",
+                  fontSize: 'clamp(18px, 4vw, 26px)', fontWeight: 900,
+                  color: theme.accent,
+                  textShadow: `0 0 20px ${theme.accent}80`,
+                  letterSpacing: '2px',
+                }}>
+                  {initials}
+                </div>
               )}
             </div>
           </div>
 
           {/* Details */}
-          <div style={{ paddingTop: '4px' }}>
+          <div style={{ paddingTop: '4px', minWidth: 0 }}>
             <div style={{ marginBottom: '6px' }}>
               <GlitchName name={data.name} color={theme.accent} />
             </div>
             <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: 'clamp(9px, 1.5vw, 11px)', color: theme.accent, letterSpacing: '2px', marginBottom: '14px', opacity: 0.8 }}>
               // {(data.role || '').toUpperCase()} //
             </div>
-            <div className="card-meta-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
               {[
                 ['NATIONALITY', (data.nationality || '').toUpperCase(), false],
-                ['CLEARANCE', (data.clearance || '').toUpperCase(), true],
-                ['EXPERIENCE', `${data.years || 1} YRS`, true],
+                ['CLEARANCE',   (data.clearance || '').toUpperCase(),   true],
+                ['EXPERIENCE',  `${data.years || 1} YRS`,               true],
                 ['ISSUED', (() => {
-                  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+                  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
                   const d = new Date()
-                  return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${data.issueYear || d.getFullYear()}`
+                  return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${data.issueYear || d.getFullYear()}`
                 })(), true],
               ].map(([label, value, highlight]) => (
                 <div key={label}>
                   <div style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: '8px', letterSpacing: '2px', color: 'var(--muted)', marginBottom: '2px' }}>{label}</div>
-                  <div style={{ fontFamily: highlight ? "'Share Tech Mono', monospace" : "'Rajdhani', sans-serif", fontSize: highlight ? '11px' : '13px', fontWeight: 600, color: highlight ? '#fbbf24' : 'var(--text)' }}>{value}</div>
+                  <div style={{ fontFamily: highlight ? "'Share Tech Mono', monospace" : "'Rajdhani', sans-serif", fontSize: highlight ? '11px' : '13px', fontWeight: 600, color: highlight ? '#fbbf24' : 'var(--text)', wordBreak: 'break-word' }}>{value}</div>
                 </div>
               ))}
             </div>
           </div>
-
-          {/* QR Code — dark themed */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-            <div style={{
-              background: theme.surface,
-              border: `1px solid ${theme.accent}40`,
-              padding: '8px', borderRadius: '6px',
-              boxShadow: `0 0 12px ${theme.accent}20`,
-            }}>
-              <QRCode
-                value={shareUrl}
-                size={64}
-                style={{ display: 'block', width: 'clamp(48px, 8vw, 72px)', height: 'clamp(48px, 8vw, 72px)' }}
-                fgColor={theme.accent}
-                bgColor="transparent"
-              />
-            </div>
-            <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: '7px', color: theme.accent, letterSpacing: '1px', opacity: 0.5 }}>SCAN · SHARE</span>
-          </div>
-
         </div>
 
         {/* Level badge */}
@@ -187,7 +178,7 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
             ◆ {level.label}
           </div>
           <div style={{ display: 'flex', gap: '4px' }}>
-            {[1, 2, 3, 4, 5].map(i => (
+            {[1,2,3,4,5].map(i => (
               <div key={i} style={{
                 width: '20px', height: '4px', borderRadius: '2px',
                 background: i <= level.rank ? level.color : `${level.color}25`,
@@ -204,7 +195,7 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
         <div style={{ background: `${theme.accent}08`, border: `1px solid ${theme.accent}25`, borderRadius: '6px', padding: '10px 16px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
           <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: '9px', letterSpacing: '3px', color: theme.accent, opacity: 0.7 }}>// SYSTEM ACCESS //</span>
           <div style={{ display: 'flex', gap: '4px' }}>
-            {[[theme.accent, 0], ['#10b981', 0.3], ['#fbbf24', 0.6], [theme.accent2, 0.9], [theme.accent, 1.2]].map(([color, delay], i) => (
+            {[[theme.accent,0],['#10b981',0.3],['#fbbf24',0.6],[theme.accent2,0.9],[theme.accent,1.2]].map(([color, delay], i) => (
               <div key={i} className="clearance-dot" style={{ background: color, boxShadow: `0 0 6px ${color}`, animationDelay: `${delay}s` }} />
             ))}
           </div>
@@ -213,7 +204,7 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
 
         {/* Classification tags */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
-          {[['SYSTEMS', '#f59e0b'], ['WEB', theme.accent], ['MOBILE', '#10b981'], ['DATA', '#a855f7'], ['DEVOPS', theme.accent2]].map(([tag, color]) => (
+          {[['SYSTEMS','#f59e0b'],['WEB',theme.accent],['MOBILE','#10b981'],['DATA','#a855f7'],['DEVOPS',theme.accent2]].map(([tag, color]) => (
             <span key={tag} style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: '9px', letterSpacing: '2px', padding: '4px 10px', borderRadius: '2px', color, border: `1px solid ${color}40`, background: `${color}10` }}>{tag}</span>
           ))}
         </div>
@@ -224,13 +215,13 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
         </div>
         <StampGrid stacks={data.stacks || []} />
 
-        {/* Stats — fixed alignment */}
+        {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '1px', background: theme.border, border: `1px solid ${theme.border}`, borderRadius: '8px', overflow: 'hidden', marginBottom: '24px' }}>
           {[
             [(data.stacks || []).length, 'Technologies'],
-            [data.years || 1, 'Years Active'],
-            [level.label, 'Level'],
-            ['∞', 'Potential'],
+            [data.years || 1,            'Years Active'],
+            [level.label,                'Level'],
+            ['∞',                        'Potential'],
           ].map(([num, label]) => (
             <div key={label} style={{ background: theme.surface, padding: '12px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{
@@ -238,8 +229,7 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
                 fontSize: num.toString().length > 5 ? '10px' : num.toString().length > 3 ? '13px' : '20px',
                 fontWeight: 900, color: theme.accent,
                 textShadow: `0 0 15px ${theme.accent}80`,
-                display: 'block', marginBottom: '4px',
-                lineHeight: 1.2,
+                display: 'block', marginBottom: '4px', lineHeight: 1.2,
               }}>{num}</span>
               <span style={{ fontFamily: "'Share Tech Mono', monospace", fontSize: '8px', color: 'var(--muted)', letterSpacing: '1px', textTransform: 'uppercase' }}>{label}</span>
             </div>
