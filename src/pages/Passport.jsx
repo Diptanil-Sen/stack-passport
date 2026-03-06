@@ -16,10 +16,10 @@ export default function Passport() {
   const avatarUrl = location.state?.avatarUrl || null
 
   let data = defaultPassport
-  try {
-    const raw = params.get('d')
-    if (raw) data = JSON.parse(decodeURIComponent(atob(raw)))
-  } catch (e) {}
+try {
+  const raw = params.get('d')
+  if (raw) data = JSON.parse(atob(raw))
+} catch (e) {}
 
   const theme = THEMES[data.theme] || THEMES.cyber
 

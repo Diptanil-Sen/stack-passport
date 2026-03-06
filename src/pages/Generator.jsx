@@ -77,11 +77,11 @@ export default function Generator() {
   }
 
   function generate() {
-    if (!validate()) return
-    const data = { ...form, years: parseInt(form.years) || 1, stacks }
-    const encoded = btoa(encodeURIComponent(JSON.stringify(data)))
-    navigate(`/passport?d=${encoded}`, { state: { avatarUrl } })
-  }
+  if (!validate()) return
+  const data = { ...form, years: parseInt(form.years) || 1, stacks }
+  const encoded = btoa(JSON.stringify(data))
+  navigate(`/passport?d=${encoded}`, { state: { avatarUrl } })
+}
 
   function getTechMeta(name) {
     const key = name.toLowerCase().replace(/\s/g, '')

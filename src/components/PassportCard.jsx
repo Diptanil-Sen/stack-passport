@@ -110,7 +110,7 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
         </div>
 
         {/* Identity row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: 'clamp(10px, 2vw, 20px)', marginBottom: '20px', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: 'clamp(6px, 2vw, 20px)', marginBottom: '20px', alignItems: 'start', minWidth: 0 }}>
 
           {/* Avatar */}
           <div className="avatar-ring">
@@ -165,8 +165,8 @@ export default function PassportCard({ data, cardRef, avatarUrl }) {
             }}>
               <QRCode
                 value={shareUrl}
-                size={80}
-                style={{ display: 'block', width: '80px', height: '80px' }}
+                size={64}
+                style={{ display: 'block', width: 'clamp(48px, 8vw, 72px)', height: 'clamp(48px, 8vw, 72px)' }}
                 fgColor={theme.accent}
                 bgColor="transparent"
               />
